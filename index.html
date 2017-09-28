@@ -60,12 +60,16 @@
       $(function() {
         // var socket = io(); // either works
         var socket = io.connect();
+        var $messageArea = $('#messageArea')
         var $messageForm = $('#messageForm');
         var $message = $('#message');
         var $chat = $('#chat');
-        var $userForm = $('#userForm');
         var $userFormArea = $('#userFormArea');
-        var $messageArea = $('#messageArea')
+        var $userForm = $('#userForm');
+        var $users = $('#users');
+        var $username = $('#username')
+
+
 
         $messageForm.submit(function(event) {
           event.preventDefault();
@@ -74,7 +78,26 @@
         });
 
         socket.on('new message', function(data) {
-          $chat.append('<div class="well">'+data.msg+'</div>')
+          $chat.append('<div class="well"><strong>'+data.user+'</strong>: '+data.msg+'</div>')
+        });
+
+        $userForm.submit(function(event) {
+          event.preventDefault();
+          socket.emit('new user', $username.val(), function(data) {
+            if (data) {
+              $userFormArea.hide();
+              $messageArea.show();
+            }
+          });
+          $username.val('');
+        });
+
+        socket.on('get users', function(data) {
+          var html = '';
+          for (var i =0; i < data.length; i++) {
+            html += '<li class="list-group-item">'+data[i]+'</li>'
+          };
+          $users.html(html);
         });
       });
     </script>
